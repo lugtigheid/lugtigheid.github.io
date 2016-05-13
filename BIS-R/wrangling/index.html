@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data wrangling in R</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Data wrangling in R">
+  <meta name="author" content="Arthur Lugtigheid PhD, Data scientist">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Data wrangling in R</h1>
+    <h2>May 11 2016</h2>
+    <p>Arthur Lugtigheid PhD, Data scientist<br/>Data science and visualisation team (Analysis directorate)</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Before we start...</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><p>Slides are on <a href="http://cbas/lugtigha">http://cbas/lugtigha</a></p></li>
+<li><p>I am working on some hand outs you can print, but the slides will always be available on above URL in CBAS. </p></li>
+<li><p>Slides advance with arrow keys or by clicking on one of the sides of the presentation. </p></li>
+<li><p>You can get an overview of slides by pressing &#39;o&#39;, go full screen with &#39;r&#39;. </p></li>
+<li><p>These slides were made in R using Markdown and Slidify. </p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Before we start...</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Data frames (data.frames) are used for storing data tables; it is a list of vectors of equal length (very similar to an Excel sheet). Data frames are the single most used data type in R.  </p>
+
+<pre><code class="r">tax.mp &lt;- data.frame(
+    &quot;sex&quot; = c(&#39;M&#39;, &#39;M&#39;, &#39;M&#39;, &#39;M&#39;, &#39;F&#39;, &#39;F&#39;),
+    &quot;Party&quot; = c(&#39;Con&#39;, &#39;Con&#39;, &#39;Lab&#39;, &#39;Con&#39;, &#39;SNP&#39;, &#39;Lab&#39;), 
+    &quot;Name&quot; = c(&#39;Cameron&#39;, &#39;Osborne&#39;, &#39;Corbyn&#39;, &#39;Johnson&#39;, &#39;Sturgeon&#39;, &#39;Flint&#39;),
+    &quot;Income&quot; = c(200307, 198738, 70795 , 612583, 104000, 58724),
+    &quot;Tax&quot; = c(75898, 72210, 18912, 276505, 31000, 12965)
+    )
+</code></pre>
+
+<pre><code>##   sex Party     Name Income    Tax
+## 1   M   Con  Cameron 200307  75898
+## 2   M   Con  Osborne 198738  72210
+## 3   M   Lab   Corbyn  70795  18912
+## 4   M   Con  Johnson 612583 276505
+## 5   F   SNP Sturgeon 104000  31000
+## 6   F   Lab    Flint  58724  12965
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="quiz" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Quiz</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Take 2 minutes to figure out what do these commands do: </p>
+
+<pre><code class="r">tax.mp[1,2]
+
+tax.con &lt;- tax.mp$Party == &#39;Con&#39;
+
+mean(tax.mp$Income[tax.con])
+
+with(tax.mp, sum(Income - Tax))
+
+subset(tax.mp, Party == &#39;Lab&#39;, select = c(&#39;Name&#39;, &#39;Income&#39;))
+</code></pre>
+
+<p><small style="font-size: 50%">Answers on the next slide...</small></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="quiz" id="slide-4" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">tax.mp[2,4] # it selects the fourth column in the second row of tax.mp
+</code></pre>
+
+<pre><code>## [1] 198738
+</code></pre>
+
+<pre><code class="r">tax.con &lt;- tax.mp$Party == &#39;Con&#39;  # this creates a boolean vector where all conservatives are TRUE
+
+mean(tax.mp$Income[tax.con])  # this calculates the mean income of the conservatives
+</code></pre>
+
+<pre><code>## [1] 337209.3
+</code></pre>
+
+<pre><code class="r">with(tax.mp, sum(Income - Tax))   # this calculates the difference between income and taxes for everyone
+</code></pre>
+
+<pre><code>## [1] 757657
+</code></pre>
+
+<pre><code class="r">subset(tax.mp, Party == &#39;Lab&#39;, select = c(&#39;Name&#39;, &#39;Income&#39;))  # this selects the name and income of labour members
+</code></pre>
+
+<pre><code>##     Name Income
+## 3 Corbyn  70795
+## 6  Flint  58724
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="hadley" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Introducing... &quot;The HadleyVerse&quot;</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em><em>TidyR</em></em>: for tidying data frames</p>
+
+<ul>
+<li>gather()</li>
+<li>spread()</li>
+<li>separate()</li>
+</ul>
+
+<p><em>dplyR</em>: for manipulating data frames</p>
+
+<ul>
+<li>filter()</li>
+<li>arrange()</li>
+<li>select()</li>
+<li>mutate()</li>
+</ul>
+
+<p><em>ReadR</em>: for reading in data</p>
+
+<ul>
+<li>read_csv()</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>The %&gt;% (pipe) operator</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In a pipe, the result of the left hand statement is handed over to the statement on the right (much like the UNIX pipe command, e.g. ls -l | grep key | less):</p>
+
+<pre><code class="r">data %&gt;% function %&gt;% function
+</code></pre>
+
+<pre><code class="r">head(iris,2)
+</code></pre>
+
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+</code></pre>
+
+<pre><code class="r">iris %&gt;% head(2)
+</code></pre>
+
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="intermezzo" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Tidying data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In this section, we are going to learn how to create tidy data frames:</p>
+
+<ul>
+<li>gather()</li>
+<li>separate()</li>
+<li>spread()</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="tidy" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>What are tidy data?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Tidy datasets are easy to manipulate, model and visualise, and have a specific structure:</p>
+
+<ul>
+<li>each variable is a column, </li>
+<li>each observation is a row, and </li>
+<li>each type of observational unit is a table</li>
+</ul>
+
+<p><img src="assets/img/tidy_data.jpg" /></p>
+
+<p>Tidy data provides a standard to move data around between tools. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>What are tidy data?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Let&#39;s look at it the other way around - what are examples of messy data?</p>
+
+<ul>
+<li>Column headers are values, not variable names</li>
+<li>Multiple variables are stored in one column</li>
+<li>Variables are stored in both rows and columns</li>
+<li>Multiple types of observations stored in the same table</li>
+<li>A single observational unit is stored across multiple tables</li>
+</ul>
+
+<p>How can we deal with each of these scenarios? (focus on first 3)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Column headers are values, not variable names</em></p>
+
+<pre><code>##   Department &lt;22k 22-32k 32-42k &gt;42k
+## 1        BIS  998    370    264  139
+## 2        DWP  474    470    443  806
+## 3       DCLG  246    142    856  454
+## 4        DFE  239     95    754  617
+## 5        MOJ  438    136    702  414
+</code></pre>
+
+<p>Three variables - Department, income and frequency - but 5 columns. To tidy it, we need to <strong>gather</strong> the non-variable columns into a two-column key-value pair. </p>
+
+<p>You may know this as converting a wide dataset into a long dataset.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Column headers are values, not variable names</em></p>
+
+<pre><code class="r">gather(data=messy, key=income, value=frequency, -Department)
+</code></pre>
+
+<pre><code class="r">messy %&gt;% gather(income, frequency, -Department) %&gt;% head(7)
+</code></pre>
+
+<pre><code>##   Department income frequency
+## 1        BIS   &lt;22k       998
+## 2        DWP   &lt;22k       474
+## 3       DCLG   &lt;22k       246
+## 4        DFE   &lt;22k       239
+## 5        MOJ   &lt;22k       438
+## 6        BIS 22-32k       370
+## 7        DWP 22-32k       470
+</code></pre>
+
+<p>This form is tidy because each column represents a variable and each row represents an observation, in this case a demographic unit corresponding to a combination of department and income.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Multiple variables stored in one column</em></p>
+
+<pre><code>##    University M18-25 M25-35 F18-25 F25-35
+## 1  Birmingham    920    115    815    116
+## 2   Cambridge    662    184    679    269
+## 3      Oxford    777    100    900    272
+## 4 Southampton    528    102    840    285
+## 5     Bristol    639    100    872    109
+</code></pre>
+
+<p>Four variables: University, Sex, Age range and frequency.</p>
+
+<p>To tidy it, we need to first <strong>gather</strong> the non-variable columns into key - value pairs, then <strong>seperate</strong> the key (e.g. M18-25) into two variables.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Multiple variables stored in one column (cont.)</em></p>
+
+<pre><code class="r">messy %&gt;% gather(key, value, -University) %&gt;% head(10)
+</code></pre>
+
+<pre><code>##     University    key value
+## 1   Birmingham M18-25   920
+## 2    Cambridge M18-25   662
+## 3       Oxford M18-25   777
+## 4  Southampton M18-25   528
+## 5      Bristol M18-25   639
+## 6   Birmingham M25-35   115
+## 7    Cambridge M25-35   184
+## 8       Oxford M25-35   100
+## 9  Southampton M25-35   102
+## 10     Bristol M25-35   100
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Multiple variables stored in one column (cont.)</em></p>
+
+<pre><code class="r">messy %&gt;% gather(key, value, -University) %&gt;% separate(key, c(&#39;Sex&#39;,&#39;Age&#39;), 1) %&gt;% head(12)
+</code></pre>
+
+<pre><code>##     University Sex   Age value
+## 1   Birmingham   M 18-25   920
+## 2    Cambridge   M 18-25   662
+## 3       Oxford   M 18-25   777
+## 4  Southampton   M 18-25   528
+## 5      Bristol   M 18-25   639
+## 6   Birmingham   M 25-35   115
+## 7    Cambridge   M 25-35   184
+## 8       Oxford   M 25-35   100
+## 9  Southampton   M 25-35   102
+## 10     Bristol   M 25-35   100
+## 11  Birmingham   F 18-25   815
+## 12   Cambridge   F 18-25   679
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Variables are stored in both rows and columns</em></p>
+
+<pre><code>##   year month range  d1  d2  d3  d4  d5  d6  d7
+## 1 2016     1   Min 996 646 665 677 801 750 509
+## 2 2016     2   Min 608 556 922 823 847 641 851
+## 3 2016     3   Min 968 740 870 686 993 891 995
+## 4 2016     1   Max 724 871 889 979 584 560 859
+## 5 2016     2   Max 582 704 786 641 771 628 692
+## 6 2016     3   Max 883 713 833 500 989 794 988
+</code></pre>
+
+<p>This data set has variables in individual columns (id, year, month) and across columns (weekday) but also across rows (range). </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Variables are stored in both rows and columns (cont.)</em></p>
+
+<p>To tidy this, we first gather the weekday columns: </p>
+
+<pre><code class="r">messy %&gt;% 
+  gather(day, value, d1:d7) %&gt;% 
+  head(8)
+</code></pre>
+
+<pre><code>##   year month minmax day value
+## 1 2016     1    Min  d1   996
+## 2 2016     2    Min  d1   608
+## 3 2016     3    Min  d1   968
+## 4 2016     1    Max  d1   724
+## 5 2016     2    Max  d1   582
+## 6 2016     3    Max  d1   883
+## 7 2016     1    Min  d2   646
+## 8 2016     2    Min  d2   556
+</code></pre>
+
+<p>Mostly tidy, but range is still not a variable (it stores names of variables).</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Dealing with messy data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Variables are stored in both rows and columns (cont.)</em></p>
+
+<p>Fixing this requires the spread function: </p>
+
+<pre><code class="r">messy %&gt;% 
+  gather(day, value, d1:d7) %&gt;% 
+  spread(range, value) %&gt;% 
+  head(8)
+</code></pre>
+
+<pre><code>##   year month day Max Min
+## 1 2016     1  d1 724 996
+## 2 2016     1  d2 871 646
+## 3 2016     1  d3 889 665
+## 4 2016     1  d4 979 677
+## 5 2016     1  d5 584 801
+## 6 2016     1  d6 560 750
+## 7 2016     1  d7 859 509
+## 8 2016     2  d1 582 608
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="quiz" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>Quiz</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Consider these two data sets: which is the tidy data set?</p>
+
+<pre><code>##   id        x         y
+## 1  1 6.244945 0.9122943
+## 2  2 6.377398 3.2430906
+## 3  3 5.097869 1.7203113
+## 4  4 7.901603 5.3240741
+</code></pre>
+
+<pre><code>##   id variable     value
+## 1  1        x 6.2449450
+## 2  2        x 6.3773985
+## 3  3        x 5.0978685
+## 4  4        x 7.9016026
+## 5  1        y 0.9122943
+## 6  2        y 3.2430906
+## 7  3        y 1.7203113
+## 8  4        y 5.3240741
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="quiz" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>Quiz</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Consider these data:</p>
+
+<pre><code class="r">stocks %&gt;% head(5)
+</code></pre>
+
+<pre><code>##         time          X          Y          Z
+## 1 2009-01-01  1.4997698  3.2066752 -3.8921020
+## 2 2009-01-02  1.2464219 -0.9456069  0.4057550
+## 3 2009-01-03 -0.2634953 -1.6370437  3.5708525
+## 4 2009-01-04 -0.2069673  0.8187246  0.4574388
+## 5 2009-01-05  2.0559941 -0.7150004 -3.9079440
+</code></pre>
+
+<p>What does this command do?</p>
+
+<pre><code class="r">stocks %&gt;% gather(key, value, -time) %&gt;% spread(key, value) %&gt;% head(5)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="intermezzo" id="slide-20" style="background:;">
+  <hgroup>
+    <h2>Data manipulation</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In this section, we are going to learn how to manipulate data frames using &quot;Split - Apply - Combine&quot; types of analyses, e.g.:</p>
+
+<ul>
+<li>filter() and select()</li>
+<li>arrange()</li>
+<li>mutate() and transmute()</li>
+<li>summarise()</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h2>Let&#39;s load some data</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r"># install the package - all flights departing from NYC in 2013
+install.packages(&#39;nycflights13&#39;)
+
+# load the packages
+library(nycflights13)
+library(dplyr)
+
+# we can now use the &#39;flights&#39; data.frame as normal:
+summary(flights)
+
+# convert to a &#39;tibble&#39; -  A tbl is just a special kind of data.frame. They make your data easier to look at, but 
+# also easier to work with; a tbl is straightforwardly derived from a data.frame structure using tbl_df().
+
+# The tbl format changes how R displays your data, but it does not change the data&#39;s underlying data structure. A
+# tbl inherits the original class of its input, in this case, a data.frame. This means that you can still 
+# manipulate the tbl as if it were a data.frame; you can do anything with the flights tbl that you could do with 
+# the flights data.frame.
+flights &lt;- tbl_df(flights)
+
+# let&#39;s have a better look at it
+glimpse(flights)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-22" style="background:;">
+  <article data-timings="">
+    <pre><code class="r"># let&#39;s have a better look at it
+glimpse(flights)
+</code></pre>
+
+<pre><code>## Observations: 336,776
+## Variables: 19
+## $ year           (int) 2013, 2013, 2013, 2013, 2013, 2013, 2013, 2013,...
+## $ month          (int) 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,...
+## $ day            (int) 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,...
+## $ dep_time       (int) 517, 533, 542, 544, 554, 554, 555, 557, 557, 55...
+## $ sched_dep_time (int) 515, 529, 540, 545, 600, 558, 600, 600, 600, 60...
+## $ dep_delay      (dbl) 2, 4, 2, -1, -6, -4, -5, -3, -3, -2, -2, -2, -2...
+## $ arr_time       (int) 830, 850, 923, 1004, 812, 740, 913, 709, 838, 7...
+## $ sched_arr_time (int) 819, 830, 850, 1022, 837, 728, 854, 723, 846, 7...
+## $ arr_delay      (dbl) 11, 20, 33, -18, -25, 12, 19, -14, -8, 8, -2, -...
+## $ carrier        (chr) &quot;UA&quot;, &quot;UA&quot;, &quot;AA&quot;, &quot;B6&quot;, &quot;DL&quot;, &quot;UA&quot;, &quot;B6&quot;, &quot;EV&quot;,...
+## $ flight         (int) 1545, 1714, 1141, 725, 461, 1696, 507, 5708, 79...
+## $ tailnum        (chr) &quot;N14228&quot;, &quot;N24211&quot;, &quot;N619AA&quot;, &quot;N804JB&quot;, &quot;N668DN...
+## $ origin         (chr) &quot;EWR&quot;, &quot;LGA&quot;, &quot;JFK&quot;, &quot;JFK&quot;, &quot;LGA&quot;, &quot;EWR&quot;, &quot;EWR&quot;...
+## $ dest           (chr) &quot;IAH&quot;, &quot;IAH&quot;, &quot;MIA&quot;, &quot;BQN&quot;, &quot;ATL&quot;, &quot;ORD&quot;, &quot;FLL&quot;...
+## $ air_time       (dbl) 227, 227, 160, 183, 116, 150, 158, 53, 140, 138...
+## $ distance       (dbl) 1400, 1416, 1089, 1576, 762, 719, 1065, 229, 94...
+## $ hour           (dbl) 5, 5, 5, 5, 6, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5,...
+## $ minute         (dbl) 15, 29, 40, 45, 0, 58, 0, 0, 0, 0, 0, 0, 0, 0, ...
+## $ time_hour      (time) 2013-01-01 05:00:00, 2013-01-01 05:00:00, 2013...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h2>select()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The select() function is the same as the base subset() function, but also allows fancy use of helper functions like starts_with(), ends_with(), matches() and contains():</p>
+
+<p>What might the following R commands do?</p>
+
+<pre><code class="r">select(flights, month)
+
+flights %&gt;% select(month)
+
+flights %&gt;% select(-day)
+
+flights %&gt;% select(1:3)
+
+flights %&gt;% select(flight:dest)
+</code></pre>
+
+<p>More examples on the next couple of slides...</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>select()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Select all columns to do with delays:</p>
+
+<pre><code class="r">flights %&gt;% select(ends_with(&#39;delay&#39;))
+</code></pre>
+
+<pre><code>## Source: local data frame [336,776 x 2]
+## 
+##    dep_delay arr_delay
+##        (dbl)     (dbl)
+## 1          2        11
+## 2          4        20
+## 3          2        33
+## 4         -1       -18
+## 5         -6       -25
+## 6         -4        12
+## 7         -5        19
+## 8         -3       -14
+## 9         -3        -8
+## 10        -2         8
+## ..       ...       ...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>select()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Select all columns to do with arrivals:</p>
+
+<pre><code class="r">flights %&gt;% select(contains(&#39;arr&#39;))
+</code></pre>
+
+<pre><code>## Source: local data frame [336,776 x 5]
+## 
+##    arr_time sched_arr_time arr_delay carrier        CarrierName
+##       (int)          (int)     (dbl)   (chr)              (chr)
+## 1       830            819        11      UA             United
+## 2       850            830        20      UA             United
+## 3       923            850        33      AA           American
+## 4      1004           1022       -18      B6            JetBlue
+## 5       812            837       -25      DL              Delta
+## 6       740            728        12      UA             United
+## 7       913            854        19      B6            JetBlue
+## 8       709            723       -14      EV Atlantic_Southeast
+## 9       838            846        -8      B6            JetBlue
+## 10      753            745         8      AA           American
+## ..      ...            ...       ...     ...                ...
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h2>filter()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Filter allows you to subset by rows. It will take any logical statement (something that will produce TRUE and FALSE values, e.g. a boolean vector):</p>
+
+<p>What might the following R commands do?</p>
+
+<pre><code class="r"># single criterion
+filter(flights, origin == &#39;JFK&#39;)
+flights %&gt;% filter(dep_delay &lt; 10)
+flights %&gt;% filter(carrier %in% c(&#39;UA&#39;, &#39;DL&#39;, &#39;AA&#39;))
+
+# Multiple criteria
+flights %&gt;% filter(dep_delay &lt; 10 &amp; arr_delay &gt; 10)
+flights %&gt;% filter(dep_delay &lt; 10 | arr_delay &gt; 10)
+
+# Multiple arguments are equivalent to and
+flights %&gt;% filter(dep_delay &lt; 10, arr_delay == 1)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>arrange()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The arrange() function lets you order the rows by one or more columns in ascending or descending order:</p>
+
+<p>What might the following R commands do?</p>
+
+<pre><code class="r">arrange(flights, dep_time)
+
+flights %&gt;% arrange(dep_delay)
+
+flights %&gt;% arrange(dep_delay, arr_delay)
+
+flights %&gt;% arrange(desc(dep_delay))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>mutate()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In contrast to select(), which retains a subset of all variables, mutate() creates new columns which are added to a copy of the dataset.</p>
+
+<p>What might the following R commands do?</p>
+
+<pre><code class="r">flights$total_delay &lt;- flights$dep_delay + flights$arr_delay
+
+mutate(flights, total_delay2 = dep_delay + arr_delay)
+
+flights %&gt;% mutate(total_delay = dep_delay + arr_delay)
+
+flights %&gt;% mutate(date = paste(year, month, day, sep=&#39;-&#39;))
+</code></pre>
+
+<p>Which of these will change (i.e. add a column to) the object called flights?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h2>summarise() or summarize()</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Summarises multiple values into a single value</p>
+
+<p>What might the following R commands do?</p>
+
+<pre><code class="r"># our data has NULL (NA) values, so we need to tell R to remove those
+with(flights, mean(dep_delay, na.rm=T))
+
+# in dplyr
+summarise(flights, mean(dep_delay, na.rm=T))
+
+flights %&gt;% summarise(mean(dep_delay, na.rm=T))
+
+summarise(group_by(flights, carrier), mean(dep_delay, na.rm=T))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-30" style="background:;">
+  <article data-timings="">
+    <pre><code class="r">flights %&gt;% 
+  group_by(carrier) %&gt;% 
+  summarise(avg_delay = mean(dep_delay, na.rm = T)) %&gt;% 
+  arrange(avg_delay)
+</code></pre>
+
+<pre><code>## Source: local data frame [16 x 2]
+## 
+##    carrier avg_delay
+##      (chr)     (dbl)
+## 1       US  3.782418
+## 2       HA  4.900585
+## 3       AS  5.804775
+## 4       AA  8.586016
+## 5       DL  9.264505
+## 6       MQ 10.552041
+## 7       UA 12.106073
+## 8       OO 12.586207
+## 9       VX 12.869421
+## 10      B6 13.022522
+## 11      9E 16.725769
+## 12      WN 17.711744
+## 13      FL 18.726075
+## 14      YV 18.996330
+## 15      EV 19.955390
+## 16      F9 20.215543
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h2>And finally... ReadR</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Let&#39;s read in some election data. I will use this in a future session.</p>
+
+<pre><code class="r"># if you haven&#39;t already done so, install the package
+install.packages(&#39;readr&#39;)
+</code></pre>
+
+<pre><code class="r"># load the library
+library(readr)
+
+# load the file
+election.results &lt;- read_csv(&#39;./assets/election_results_2015.csv&#39;)
+
+# how big?
+dim(election.results)
+</code></pre>
+
+<pre><code>## [1] 651 147
+</code></pre>
+
+<p>I challenge thee to <a href='assets/election_results_2015.csv'>download the data</a> and think about how you might tidy these data using tidyr and produce meaningful data using dplyr. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    <h2>Some examples</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>How many people voted?</em></p>
+
+<pre><code class="r">election.results %&gt;% 
+  filter(Country==&#39;England&#39;)%&gt;% 
+  rename(nvotes = `Total number of valid votes counted`) %&gt;%
+  summarise(total=sum(nvotes)/sum(Electorate))
+</code></pre>
+
+<pre><code>## Source: local data frame [1 x 1]
+## 
+##       total
+##       (dbl)
+## 1 0.6601301
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h2>Some examples</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>In which constituency was the pirate party most popular?</em></p>
+
+<pre><code class="r">election.results %&gt;% 
+  arrange(desc(Pirate)) %&gt;%
+  select(`Constituency Name`, Region, Pirate) %&gt;%
+  head(3)
+</code></pre>
+
+<pre><code>## Source: local data frame [3 x 3]
+## 
+##    Constituency Name     Region Pirate
+##                (chr)      (chr)  (int)
+## 1 Manchester Central North West    346
+## 2           Vauxhall     London    201
+## 3   Salford &amp; Eccles North West    183
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h2>Some examples</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>Other possible questions:</em></p>
+
+<ul>
+<li>Who would have won if there was proportional representation?</li>
+<li>What was the share of votes of the BNP in England and Scotland?</li>
+</ul>
+
+<p>What questions would you want to answer from these data?</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h2>Further reading</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>I highly recommend the <a href="https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf">data wrangling cheatsheet</a> (RStudio)</li>
+<li><a href="https://rpubs.com/bradleyboehmke/data_wrangling">Data processing with tidyr and dplyr</a></li>
+</ul>
+
+<p>dplyr:</p>
+
+<ul>
+<li><a href="https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html">An introduction to dplyr</a> (RStudio)</li>
+<li><a href="http://www.r-bloggers.com/hands-on-dplyr-tutorial-for-faster-data-manipulation-in-r/">Hands-on dplyr tutorial for faster data manipulation in R</a> (R-Bloggers)</li>
+<li><a href="https://www.dropbox.com/sh/i8qnluwmuieicxc/AAAgt9tIKoIm7WZKIyK25lh6a">Comprehensive Tutorial with examples</a> (Hadley Wickham, R! 2014)</li>
+</ul>
+
+<p>tidyr:</p>
+
+<ul>
+<li><a href="http://www.r-bloggers.com/introducing-tidyr/">Introducting tidyr</a> (R-Bloggers)</li>
+<li><a href="http://www.cookbook-r.com/Manipulating_data/Converting_data_between_wide_and_long_format/">Converting data between wide and long&gt;</a> (R cookbook)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    <h2>The road ahead</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><em>There will be more sessions</em></p>
+
+<ul>
+<li><p>In the next session (Wed 25 May) we will look at visualising our data in R. We&#39;ll learn some basic plotting, but also how to use a plotting library called ggplot2. </p></li>
+<li><p>In the session after that (likely Wed 8th of June) we&#39;ll look at a case study that combines all the skills we have picked up up to that point. </p></li>
+</ul>
+
+<p><em>Wrapping up:</em></p>
+
+<ul>
+<li><p>Don&#39;t forget to leave me feedback: <a href="http://goo.gl/forms/yvYPJ7OEP5">http://goo.gl/forms/yvYPJ7OEP5</a></p></li>
+<li><p>Slides are on <a href="http://cbas/lugtigha">http://cbas/lugtigha</a></p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Before we start...'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Before we start...'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Quiz'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='NA'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Introducing... &quot;The HadleyVerse&quot;'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='The %&gt;% (pipe) operator'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Tidying data'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='What are tidy data?'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='What are tidy data?'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Dealing with messy data'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Dealing with messy data'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Dealing with messy data'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Dealing with messy data'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Dealing with messy data'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='Dealing with messy data'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Dealing with messy data'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Dealing with messy data'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='Quiz'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='Quiz'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title='Data manipulation'>
+         20
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=21 title='Let&#39;s load some data'>
+         21
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=22 title='NA'>
+         22
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=23 title='select()'>
+         23
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=24 title='select()'>
+         24
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=25 title='select()'>
+         25
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=26 title='filter()'>
+         26
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=27 title='arrange()'>
+         27
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=28 title='mutate()'>
+         28
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=29 title='summarise() or summarize()'>
+         29
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=30 title='NA'>
+         30
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=31 title='And finally... ReadR'>
+         31
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=32 title='Some examples'>
+         32
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=33 title='Some examples'>
+         33
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=34 title='Some examples'>
+         34
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=35 title='Further reading'>
+         35
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=36 title='The road ahead'>
+         36
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

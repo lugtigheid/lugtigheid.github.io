@@ -1,0 +1,11 @@
+base
+slidify
+dplyr
+readr
+XML
+png
+devtools
+bitops
+RCurl
+tidyr
+nycflights13
